@@ -1,0 +1,20 @@
+node_modules/
+dist/
+dist_electron/
+
+# Globally ignore auto-generated files and npm / bower modules
+.DS_Store
+*/.DS_Store
+.DS_Store?
+*.cfg
+node_modules/
+/bower_components
+bower_components/
+.vscode
+*.zip
+*.sublime*
+.sass-cache
+.bowerrc
+.grunt
+.sass-lint.yml
+/.idea

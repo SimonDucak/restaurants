@@ -1,0 +1,15 @@
+{
+  "presets": [
+    "@babel/typescript",
+    [
+      "@babel/env",
+      {
+        "modules": false
+      }
+    ]
+  ],
+  "plugins": [
+    "transform-class-properties",
+    "@babel/plugin-transform-runtime"
+  ]
+}
