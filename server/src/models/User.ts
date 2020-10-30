@@ -8,16 +8,16 @@ import { minLength } from "../validators/string";
 *  Everyone can change user role through postman.
 *  VERY IMPORTANT !!!
 * */
-export const userRoles = ["GOD", "ADMIN", "WAITER", "NONE"] as const;
-export type TUserRoles = typeof userRoles[number];
+export const platformUserRoles = ["GOD", "NONE"] as const;
+export type TPlatformUserRoles = typeof platformUserRoles[number];
 
 class User {
-    public company: Company = new Company();
+    public companies: Company[] = [];
 
     public constructor(
         public email: string = "",
         public password: string = "",
-        public role: TUserRoles = "NONE",
+        public role: TPlatformUserRoles = "NONE",
         public forename: string = "",
         public surname: string = "",
         public agreement: boolean = false,
@@ -43,12 +43,14 @@ class User {
             role: {
                 type: String,
                 required: true,
-                enum: userRoles,
+                enum: platformUserRoles,
             },
-            company:  {
-                type: Schema.Types.ObjectId,
-                ref: "Company",
-            },
+            companies:  [
+                {
+                    type: Schema.Types.ObjectId,
+                    ref: "Company",
+                },
+            ],
             forename: {
                 type: String,
                 required: true,

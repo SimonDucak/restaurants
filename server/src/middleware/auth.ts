@@ -43,6 +43,7 @@ export const verifyUser: Function = async (req: Request): Promise<true | Extende
 
 /*
 * Only GOD role has a access
+* God role has access to everywhere! :O
 * */
 export const godRequired: RequestHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -54,34 +55,4 @@ export const godRequired: RequestHandler = async (req: Request, res: Response, n
   } catch (e) {
       next(e);
   }
-};
-
-/*
-* Admin and God role has a access
-* */
-export const adminRequired: RequestHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-        const verifyResult: true | ExtendedError = await verifyUser(req);
-        if (verifyResult instanceof ExtendedError) return next(verifyResult);
-        const { role }: { role: TUserRoles } = req.body.verifiedUser;
-        if (role !== "GOD" && role !== "ADMIN") return next(new ExtendedError("You haven't permissions for that.", 401));
-        return next();
-    } catch (e) {
-        next(e);
-    }
-};
-
-/*
-* Admin and God role has a access
-* */
-export const waiterRequired: RequestHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-        const verifyResult: true | ExtendedError = await verifyUser(req);
-        if (verifyResult instanceof ExtendedError) return next(verifyResult);
-        const { role }: { role: TUserRoles } = req.body.verifiedUser;
-        if (role !== "GOD" && role !== "ADMIN" && role !== "WAITER") return next(new ExtendedError("You haven't permissions for that.", 401));
-        return next();
-    } catch (e) {
-        next(e);
-    }
 };

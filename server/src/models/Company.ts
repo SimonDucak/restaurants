@@ -4,9 +4,20 @@ import Address from "./Address";
 import Menu from "./Menu";
 import Table from "./Table";
 
+export const companyUserRoles = ["ADMIN", "WAITER", "NONE"] as const;
+export type TCompanyUserRoles = typeof companyUserRoles[number];
+
+export const subscriptionType = ["FREE_TRIAL", "DEFAULT"] as const;
+export type TCompanySubscriptionType = typeof subscriptionType[number];
+
+export interface ICompanyUserRef {
+    _id: string;
+    role: TCompanyUserRoles;
+}
+
 class Company {
     public orders: [] = [];
-    public users: [] = [];
+    public users: ICompanyUserRef[] = [];
 
     public constructor(
         public name: string = "",
@@ -14,6 +25,8 @@ class Company {
         public desc: string = "",
         public menu: Menu[] = [],
         public tables: Table[] = [],
+        public subscriptionType: TCompanySubscriptionType = "FREE_TRIAL",
+        public subscriptionExpiredDate: Date = new Date(),
     ) {};
 
     public getMongooseSchemaDefinition(): SchemaDefinition {
@@ -31,6 +44,15 @@ class Company {
             desc: {
                 type: String,
             },
+            subscriptionType: {
+              type: String,
+              required: true,
+              enum: subscriptionType,
+            },
+            subscriptionExpiredDate: {
+              type: Date,
+              default: Date.now(),
+            },
             address: new Address().getMongooseSchemaDefinition(),
             menu: [ new Menu().getMongooseSchemaDefinition() ],
             tables: [ new Table().getMongooseSchemaDefinition() ],
@@ -42,8 +64,15 @@ class Company {
             ],
             users: [
                 {
-                    type: Schema.Types.ObjectId,
-                    ref: "Users",
+                    _id: {
+                        type: Schema.Types.ObjectId,
+                        ref: "Users",
+                    },
+                    role: {
+                        type: String,
+                        required: true,
+                        enum: companyUserRoles,
+                    }
                 },
             ],
         }
