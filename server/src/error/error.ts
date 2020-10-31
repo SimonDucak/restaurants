@@ -19,8 +19,6 @@ export const notFoundHandler= (req: Request, res: Response) => {
 
 export const errorHandler = (error: ExtendedError, req: Request, res: Response, next: NextFunction) => {
     return res.status(error.status || 500).json({
-        error: {
-            message: error.message || "Ops! Something went wrong.",
-        },
-    })
+        message: error.message || "Ops! Something went wrong.",
+    });
 };

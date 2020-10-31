@@ -1,3 +1,4 @@
+import * as emailCheck from "email-check";
 import { Router, Request, Response, NextFunction } from "express";
 import { sign } from "jsonwebtoken";
 import DB from "../db/";
@@ -6,6 +7,9 @@ import User from "../models/User";
 
 const router: Router = Router({ mergeParams: true });
 
+/*
+* Register user
+* */
 router.post("/register", async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         // Always change user role on NONE
@@ -24,6 +28,9 @@ router.post("/register", async (req: Request, res: Response, next: NextFunction)
     }
 });
 
+/*
+* Login user
+* */
 router.post("/login", async (req: Request, res: Response, next: NextFunction): Promise<void> => {
    try {
        // Find user by email
@@ -44,6 +51,20 @@ router.post("/login", async (req: Request, res: Response, next: NextFunction): P
        next(e)
    }
 });
+
+/*
+* Check if email exists
+* */
+router.post("/email", async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+   try {
+       const exists: boolean = await emailCheck(req.body.email);
+       if (!exists) res.status(400).json(false);
+       res.status(200).json(true);
+   } catch (e) {
+       next(e)
+   }
+});
+
 
 router.post("/");
 

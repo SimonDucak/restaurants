@@ -19,8 +19,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 
 // Register controllers
-app.use("/company", CompanyControllers);
-app.use("/user", UserControllers);
+app.use("/api/company", CompanyControllers);
+app.use("/api/user", UserControllers);
 
 // Error handles must be define after routes!
 app.use(notFoundHandler);

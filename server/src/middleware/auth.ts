@@ -3,7 +3,7 @@ import { verify, VerifyErrors } from "jsonwebtoken";
 import DB from "../db/";
 import { ExtendedError } from "../error/error";
 import { IUserMongooseModel } from "../db/User";
-import { TUserRoles } from "../models/User";
+import { TPlatformUserRoles } from "../models/User";
 
 export interface IDecodedToken {
     id: string;
@@ -49,10 +49,23 @@ export const godRequired: RequestHandler = async (req: Request, res: Response, n
   try {
       const verifyResult: true | ExtendedError = await verifyUser(req);
       if (verifyResult instanceof ExtendedError) return next(verifyResult);
-      const { role }: { role: TUserRoles } = req.body.verifiedUser;
+      const { role }: { role: TPlatformUserRoles } = req.body.verifiedUser;
       if (role !== "GOD") return next(new ExtendedError("You haven't permissions for that.", 401));
       return next();
   } catch (e) {
       next(e);
   }
+};
+
+/*
+* User required
+* */
+export const userRequired: RequestHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        const verifiedResult: true | ExtendedError = await verifyUser(req);
+        if (verifiedResult instanceof  ExtendedError) return next(verifiedResult);
+        return next();
+    } catch (e) {
+        next(e);
+    }
 };

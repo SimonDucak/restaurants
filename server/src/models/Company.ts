@@ -3,11 +3,12 @@ import { minLength } from "../validators/string";
 import Address from "./Address";
 import Menu from "./Menu";
 import Table from "./Table";
+import { yesterday } from "../utils/date";
 
 export const companyUserRoles = ["ADMIN", "WAITER", "NONE"] as const;
 export type TCompanyUserRoles = typeof companyUserRoles[number];
 
-export const subscriptionType = ["FREE_TRIAL", "DEFAULT"] as const;
+export const subscriptionType = ["FREE_TRIAL", "DEFAULT", "NONE"] as const;
 export type TCompanySubscriptionType = typeof subscriptionType[number];
 
 export interface ICompanyUserRef {
@@ -45,13 +46,17 @@ class Company {
                 type: String,
             },
             subscriptionType: {
-              type: String,
-              required: true,
-              enum: subscriptionType,
+                type: String,
+                required: true,
+                enum: subscriptionType,
+                default: "NONE",
+                secret: true,
             },
             subscriptionExpiredDate: {
-              type: Date,
-              default: Date.now(),
+                type: Date,
+                required: true,
+                default: yesterday(),
+                secret: true,
             },
             address: new Address().getMongooseSchemaDefinition(),
             menu: [ new Menu().getMongooseSchemaDefinition() ],

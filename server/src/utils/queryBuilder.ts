@@ -3,7 +3,7 @@
 * If URL has not any query returns empty object.
 * Use try catch!
 * */
-export const queryBuilder = (URL: string) => {
+export const queryBuilder = (URL: string): object => {
     const [url, ...paramsStrings]: string[] = decodeURI(URL).split("?");
     const paramsString: string = paramsStrings.join("");
     const params = paramsString.split("&");
