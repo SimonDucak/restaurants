@@ -222,7 +222,7 @@ export default defineComponent({
           await axios.post("/api/user/register", { user: signUpData.value });
         }
       } catch (e) {
-        error.value = e.message;
+        error.value = e.response.data.message;
         window.scrollTo({
           behavior: "smooth",
           left: 0,

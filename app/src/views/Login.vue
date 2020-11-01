@@ -49,7 +49,7 @@
                   {{error}}
                 </div>
 
-                <h3 class="mb-4">Sign up</h3>
+                <h3 class="mb-4">Sign in</h3>
 
                 <div class="row">
                   <div class="col-12">
@@ -62,8 +62,7 @@
                         class="form-control form-control-sm"
                         id="email"
                         placeholder="Email"
-                        v-model="signUpData.email"
-                        @blur="checkEmail"
+                        v-model="loginData.email"
                         :class="{'is-invalid': error}"
                       >
                     </div>
@@ -77,7 +76,7 @@
                         Password
                       </label>
                       <input
-                        v-model="signUpData.password"
+                        v-model="loginData.password"
                         type="password"
                         class="form-control form-control-sm"
                         id="password"
@@ -89,7 +88,7 @@
                 </div>
 
                 <div class="align-items-center d-flex">
-                  <button type="submit" class="btn btn-primary mr-4">Sign up</button>
+                  <button type="submit" class="btn btn-primary mr-4">Sign in</button>
 
                   <div v-if="loading" class="spinner-border text-primary" role="status">
                     <span class="sr-only">Loading...</span>
@@ -106,8 +105,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from "vue";
-import axios from "axios";
+import { defineComponent, ref } from "vue";
+import axios, { AxiosResponse } from "axios";
+import { ILoginRegisterRes } from "@/models/User";
+import { user, token, isAuth } from "@/store/User";
+import { useRouter, Router } from "vue-router";
 
 export class Login {
   public constructor(
@@ -119,29 +121,39 @@ export class Login {
 export default defineComponent({
   name: "Login",
   setup() {
-    const signUpData = ref<Login>(new Login());
+    const loginData = ref<Login>(new Login());
     const error = ref<string>("");
     const loading = ref<boolean>(false);
+    const router: Router = useRouter();
 
+    console.log(isAuth.value);
+    /*
+    * On submit form try login user.
+    * If is error show error alert and scroll up.
+    * */
     const submit: Function = async (): Promise<void> => {
       try {
+        // Show loader
         loading.value = true;
-        const { email, password } = signUpData.value;
-        await axios.post("/api/user/login", { email, password });
+        // Call login service then save user and token to store
+        const { email, password } = loginData.value;
+        const loginRes: AxiosResponse<ILoginRegisterRes> = await axios.post("/api/user/login", { email, password });
+        user.value = loginRes.data.user;
+        token.value = loginRes.data.token;
+        // Go to dashboard
+        router.push({ name: "Dashboard" });
       } catch (e) {
-        error.value = e.message;
-        window.scrollTo({
-          behavior: "smooth",
-          left: 0,
-          top: 0,
-        });
+        // Show error and scroll up
+        error.value = e.response.data.message;
+        window.scrollTo({ behavior: "smooth", left: 0, top: 0 });
       } finally {
+        // Hide loader
         loading.value = false;
       }
     };
 
     return {
-      signUpData,
+      loginData,
       submit,
       error,
       loading,

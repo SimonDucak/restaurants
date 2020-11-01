@@ -5,7 +5,7 @@
   "main": "src/server.ts",
   "scripts": {
     "mongo:dev": "mongo",
-    "dev": " webpack --config webpack.dev.js --watch",
+    "dev": "webpack --config webpack.dev.js --watch",
     "build": "webpack --config webpack.prod.js",
     "server": "nodemon dist/server.js"
   },
@@ -39,12 +39,14 @@
   "dependencies": {
     "@babel/runtime": "^7.9.2",
     "@types/bcrypt": "^3.0.0",
+    "@types/cookie": "^0.4.0",
     "@types/email-check": "^1.1.0",
     "@types/express": "^4.17.6",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/mongoose": "^5.7.36",
     "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
+    "cookie": "^0.4.1",
     "dotenv": "^8.2.0",
     "email-check": "^1.1.0",
     "express": "^4.17.1",
