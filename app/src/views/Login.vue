@@ -126,7 +126,6 @@ export default defineComponent({
     const loading = ref<boolean>(false);
     const router: Router = useRouter();
 
-    console.log(isAuth.value);
     /*
     * On submit form try login user.
     * If is error show error alert and scroll up.
