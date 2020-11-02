@@ -26,7 +26,7 @@ class Company {
         public desc: string = "",
         public menu: Menu[] = [],
         public tables: Table[] = [],
-        public subscriptionType: TCompanySubscriptionType = "FREE_TRIAL",
+        public subscriptionType: TCompanySubscriptionType = "NONE",
         public subscriptionExpiredDate: Date = new Date(),
     ) {};
 
@@ -82,6 +82,10 @@ class Company {
             ],
         }
     }
+}
+
+export interface ICompanyRes extends Omit<Company, "getMongooseSchemaDefinition"> {
+    _id: string;
 }
 
 export default Company;

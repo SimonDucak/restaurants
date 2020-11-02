@@ -5,8 +5,10 @@
   "scripts": {
     "copy:server-models": "cp-cli ../server/src/models ./src/models",
     "copy:server-validators": "cp-cli ../server/src/validators ./src/validators",
-    "serve": "npm run copy:server-models && npm run copy:server-validators && vue-cli-service serve",
-    "build": "npm run copy:server-models && npm run copy:server-validators && vue-cli-service build",
+    "copy:server-utils": "cp-cli ../server/src/utils ./src/utils",
+    "copy:server": "npm run copy:server-models && npm run copy:server-validators && npm run copy:server-utils",
+    "serve": "npm run copy:server && vue-cli-service serve",
+    "build": "npm run copy:server && vue-cli-service build",
     "test:unit": "vue-cli-service test:unit",
     "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint"

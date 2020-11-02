@@ -3,7 +3,7 @@ import { IUserMongooseModel } from "../db/User";
 import { ICompanyMongooseModel } from "../db/Company";
 import DB from "../db/";
 import { getSecretKeys, sanitizeRequest } from "../utils/mongoose";
-import {userRequired, verifyUser} from "../middleware/auth";
+import { userRequired, verifyUser } from "../middleware/auth";
 import { getFullURL } from "../utils/express";
 import { queryBuilder } from "../utils/queryBuilder";
 import { ExtendedError } from "../error/error";
@@ -36,6 +36,23 @@ async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
                 return { _id, name, address, desc };
             });
             return res.status(200).json(companiesSaveData);
+        } catch (e) {
+            next(e)
+        }
+    }
+);
+
+/*
+* Get data of all user's companies
+* */
+router.get(
+    "/user-companies",
+    userRequired,
+    async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
+        try {
+            const verifiedUser: IUserMongooseModel = req.body.verifiedUser;
+            const foundCompanies: ICompanyMongooseModel[] = await DB.Company.find({ "users._id": verifiedUser._id });
+            return res.status(200).json(foundCompanies);
         } catch (e) {
             next(e)
         }
@@ -81,12 +98,12 @@ router.get(
  * User required.
  * */
 router.post(
-    "/:id",
+    "/",
     userRequired,
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             // Find user by ID
-            const foundUser: IUserMongooseModel = await DB.User.findById(req.params.id);
+            const verifiedUser: IUserMongooseModel = req.body.verifiedUser;
             // Sanitize request
             const secretKeys: string[] = getSecretKeys(DB.Company.schema);
             const data: any = sanitizeRequest(req.body.company, secretKeys);
@@ -94,12 +111,12 @@ router.post(
             const createdCompany: ICompanyMongooseModel = await DB.Company.create(data);
             // Create N:N relationship between user and company
             const userRelationPromise: Promise<true> = new Promise(async (resolve) => {
-                foundUser.companies.push(createdCompany._id);
-                await foundUser.save();
+                verifiedUser.companies.push(createdCompany._id);
+                await verifiedUser.save();
                 resolve(true);
             });
             const companyRelationPromise: Promise<true> = new Promise(async (resolve) => {
-                createdCompany.users.push({ _id: foundUser._id, role: "ADMIN" });
+                createdCompany.users.push({ _id: verifiedUser._id, role: "ADMIN" });
                 await createdCompany.save();
                 resolve(true);
             });

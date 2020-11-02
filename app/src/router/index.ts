@@ -6,9 +6,13 @@ import axios, { AxiosResponse } from "axios";
 import { ILoginRegisterRes } from "@/models/User";
 import { isAuth, user, token } from "@/store/User";
 import { appLoaderVisible, appLoaderText } from "@/store/App";
+// Views
 import Signup from "@/views/Signup.vue";
 import Login from "@/views/Login.vue";
-import Dashboard from "@/views/dashboard/Dashboard.vue";
+// User views
+import Dashboard from "@/views/user/Dashboard.vue";
+import Companies from "@/views/user/company/Companies.vue";
+import CreateCompany from "@/views/user/company/CreateCompany.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -31,9 +35,21 @@ const routes: Array<RouteRecordRaw> = [
     path: "/dashboard",
     name: "Dashboard",
     component: Dashboard,
-    meta: {
-      loginRequired: true,
-    },
+    meta: { loginRequired: true },
+    children: [
+      {
+        path: "/dashboard",
+        name: "Companies",
+        component: Companies,
+        meta: { loginRequired: true },
+      },
+      {
+        path: "/dashboard/create-company",
+        name: "CreateCompany",
+        component: CreateCompany,
+        meta: { loginRequired: true },
+      },
+    ],
   },
 ];
 
@@ -58,7 +74,6 @@ const verifyUser: Function = async (): Promise<void> => {
     token.value = tokenRes.data.token;
   } catch (e) {
     // Token doesn't exists
-    console.log(e);
   } finally {
     appLoaderVisible.value = false;
     userWasVerified = true;
