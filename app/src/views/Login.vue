@@ -108,7 +108,7 @@
 import { defineComponent, ref } from "vue";
 import axios, { AxiosResponse } from "axios";
 import { ILoginRegisterRes } from "@/models/User";
-import { user, token, isAuth } from "@/store/User";
+import { user, token } from "@/store/User";
 import { useRouter, Router } from "vue-router";
 
 export class Login {

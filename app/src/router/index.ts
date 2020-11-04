@@ -13,6 +13,7 @@ import Login from "@/views/Login.vue";
 import Dashboard from "@/views/user/Dashboard.vue";
 import Companies from "@/views/user/company/Companies.vue";
 import CreateCompany from "@/views/user/company/CreateCompany.vue";
+import Company from "@/views/user/company/Company.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -47,6 +48,12 @@ const routes: Array<RouteRecordRaw> = [
         path: "/dashboard/create-company",
         name: "CreateCompany",
         component: CreateCompany,
+        meta: { loginRequired: true },
+      },
+      {
+        path: "/dashboard/company/:id",
+        name: "Company",
+        component: Company,
         meta: { loginRequired: true },
       },
     ],

@@ -180,7 +180,10 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from "vue";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
+import { ILoginRegisterRes } from "@/models/User";
+import { useRouter, Router } from "vue-router";
+import { user, token } from "@/store/User";
 
 export class SignUp {
   public constructor(
@@ -200,26 +203,26 @@ export default defineComponent({
     const error = ref<string>("");
     const loading = ref<boolean>(false);
     const emailValid = ref<boolean>(true);
+    const router: Router = useRouter();
 
     const submit: Function = async (): Promise<void> => {
       try {
         if (signUpData.value.password !== signUpData.value.repeatPassword) {
-          error.value = "Password don't match!";
-          window.scrollTo({
-            behavior: "smooth",
-            left: 0,
-            top: 0,
-          });
+          // Password doesn't match
+          error.value = "Password doesn't match!";
+          window.scrollTo({ behavior: "smooth", left: 0, top: 0 });
         } else if (signUpData.value.email && !emailValid.value) {
+          // If email doesn't exists
           error.value = "Email doesn't exists.";
-          window.scrollTo({
-            behavior: "smooth",
-            left: 0,
-            top: 0,
-          });
+          window.scrollTo({ behavior: "smooth", left: 0, top: 0 });
         } else {
+          // Validations are correct
           loading.value = true;
-          await axios.post("/api/user/register", { user: signUpData.value });
+          const registerRes: AxiosResponse<ILoginRegisterRes> = await axios.post("/api/user/register", { user: signUpData.value });
+          user.value = registerRes.data.user;
+          token.value = registerRes.data.token;
+          // Go to dashboard
+          router.push({ name: "Dashboard" });
         }
       } catch (e) {
         error.value = e.response.data.message;

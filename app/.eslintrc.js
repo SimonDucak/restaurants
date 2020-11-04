@@ -18,6 +18,7 @@ module.exports = {
     'max-len': 'off',
     'import/prefer-default-export': 'off',
     'no-useless-constructor': 'off',
+    'no-underscore-dangle': 'off',
     'vue/no-mutating-props': 'off',
   },
   overrides: [

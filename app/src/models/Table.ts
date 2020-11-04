@@ -11,7 +11,6 @@ class Table {
             number: {
                 type: Number,
                 required: true,
-                unique: true,
             },
             disable: {
                 type: Boolean,

@@ -192,6 +192,11 @@ export default defineComponent({
     const companies = ref<ICompanyRes[]>([]);
 
     /*
+    * TODO: CALL COUNT SERVICE FOR SHOWING "LOAD MORE" BUTTON
+    * TODO: THEN CREATE LIMITATION OF GETTING COMPANIES.
+    * */
+
+    /*
     * On view load call service to get all user companies
     * */
     onMounted(async () => {

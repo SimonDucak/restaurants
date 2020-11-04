@@ -84,6 +84,14 @@ class Company {
     }
 }
 
+export interface ICompanyReq {
+    name: string;
+    address: Address;
+    desc: string;
+    menu: Menu[];
+    tables: Table[];
+}
+
 export interface ICompanyRes extends Omit<Company, "getMongooseSchemaDefinition"> {
     _id: string;
 }
