@@ -1,41 +1,53 @@
-// import * as emailCheck from "email-check";
-// import * as cookie from "cookie";
-// import { Router, Request, Response, NextFunction } from "express";
-// import { sign, verify, VerifyErrors } from "jsonwebtoken";
-// import DB from "../db/";
-// import { IUserMongooseModel } from "../db/User";
-// import User, { ILoginRegisterRes, IUserRes } from "../models/User";
-// import { ExtendedError } from "../error/error";
-// import { IDecodedToken } from "../middleware/auth";
-//
-// const router: Router = Router({ mergeParams: true });
-//
-// /*
-// * Register user
-// * */
-// router.post("/register", async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-//     try {
-//         // Always change user role on NONE
-//         const userData: User = {
-//             ...req.body.user,
-//             role: "NONE",
-//         };
-//         // Create user
-//         const user: IUserMongooseModel = await DB.User.create(userData);
-//         // Create token
-//         const token: string = sign({ id: user._id }, process.env.SECRET_KEY);
-//         // Set token to cookie header
-//         res.setHeader('Set-Cookie', cookie.serialize('token', String(token), {
-//             httpOnly: true,
-//             maxAge: 60 * 60 * 24 * 7 // 1 week
-//         }));
-//         // Return token and user ID
-//         user.password = undefined;
-//         res.status(200).json({ user, token })
-//     } catch (e) {
-//         next(e);
-//     }
-// });
+import * as cookie from "cookie";
+import { Router, Request, Response, NextFunction } from "express";
+import DB from "../db/";
+import { UserMongoose } from "../db/User";
+import { CompanyMongoose } from "../db/Company";
+import { UserRegisterReq, UserRes, User } from "../resources/models/User"
+import { CompanyReq, Company } from "../resources/models/Company"
+import { ExtendedError } from "../error";
+import { sign } from "jsonwebtoken";
+
+const router: Router = Router({ mergeParams: true });
+
+/*
+* Register user and create company then connect them with Users N:1 Company relationship
+* */
+// TODO: Create middleware validators
+router.post("/register", async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        // Sanitize user data.
+        const { forename, surname, email, password, agreement } = req.body.user as User;
+        const userData: UserRegisterReq = { forename, surname, email, password, agreement };
+        // Sanitize company data
+        const { name, menu } = req.body.company as Company;
+        const companyData: CompanyReq = { name, menu };
+        // Create user
+        const user: UserMongoose | undefined = await DB.User.create(userData as UserMongoose);
+        // Create company
+        const company: CompanyMongoose | undefined = await DB.Company.create(companyData as CompanyMongoose);
+        // Check if company a user exists
+        if (!user || !company) return next(new ExtendedError("User or company wasn't save correctly.", 500));
+        // Connect with relationship N:1
+        user.company = company._id;
+        company.users.push(user._id);
+        await user.save();
+        await company.save();
+        // Create token
+        const token: string = sign({ id: user._id }, process.env.SECRET_KEY);
+        // Set token to cookie header
+        res.setHeader('Set-Cookie', cookie.serialize('token', String(token), {
+            httpOnly: true,
+            maxAge: 60 * 60 * 24 * 7 // 1 week
+        }));
+        // Sanitize and answer "UserRes"
+        user.password = undefined;
+        const serviceRes: { token: string, user: UserRes, } = { token, user };
+        res.status(200).json(serviceRes);
+    } catch (e) {
+        next(e);
+    }
+});
 //
 // /*
 // * Login user
@@ -140,4 +152,4 @@
 //
 // router.post("/");
 //
-// export default router;
+export default router;

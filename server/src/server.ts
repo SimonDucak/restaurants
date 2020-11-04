@@ -4,6 +4,7 @@ import * as bodyParser from "body-parser";
 import * as methodOverride from "method-override";
 import * as env from "dotenv";
 // Controllers
+import UserControllers from "./controllers/user";
 // Error handlers
 import { notFoundHandler, errorHandler } from "./error";
 
@@ -17,6 +18,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 
 // Register controllers
+app.use("/api/user", UserControllers);
 
 // Error handles must be define after routes!
 app.use(notFoundHandler);

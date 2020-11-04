@@ -59,6 +59,7 @@ export function userSchema(): any {
             type: String,
             required: true,
             enum: userRoleTypes,
+            default: "WAITER",
         },
         createdAt: {
             type: Date,

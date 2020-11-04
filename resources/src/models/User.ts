@@ -13,7 +13,7 @@ export interface UserSchema {
     surname: SchemaTypeOpts<StringConstructor> | string;
     email: SchemaTypeOpts<StringConstructor> | string;
     password: SchemaTypeOpts<StringConstructor> | string;
-    role: SchemaTypeOpts<StringConstructor> | UserRoleType;
+    role: SchemaTypeOpts<any> | UserRoleType;
     company: SchemaTypeOpts<typeof ObjectId> | string;
     createdAt: SchemaTypeOpts<any> | Date;
     agreement: SchemaTypeOpts<BooleanConstructor> | boolean
@@ -33,7 +33,7 @@ export class User implements UserSchema {
 }
 
 /*
-* User response from DB
+* User response sent in FE applications
 * */
 export interface UserRes extends Omit<User, "password"> {
     _id: string;
@@ -42,7 +42,7 @@ export interface UserRes extends Omit<User, "password"> {
 /*
 * User request for register
 * */
-export interface UserRegisterReq extends Omit<User, "role||company||createdAt"> {}
+export interface UserRegisterReq extends Omit<User, "role" | "company" | "createdAt"> {}
 
 /*
 * User request for login
