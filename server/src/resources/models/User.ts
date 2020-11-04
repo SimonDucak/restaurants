@@ -1,18 +1,22 @@
-import { SchemaTypeOpts } from "mongoose";
+import { SchemaTypeOpts, Schema } from "mongoose";
 
-export type UserRoleType = "ADMIN" | "WAITER";
+const ObjectId = Schema.Types.ObjectId;
+
+export const userRoleTypes = ["ADMIN", "WAITER"] as const;
+export type UserRoleType = typeof userRoleTypes[number];
 
 /*
 * From user schema will be construct a mongoose schema in Database.
 * */
 export interface UserSchema {
-    forename: SchemaTypeOpts<string> | string;
-    surname: SchemaTypeOpts<string> | string;
-    email: SchemaTypeOpts<string> | string;
-    password: SchemaTypeOpts<string> | string;
-    role: SchemaTypeOpts<UserRoleType> | UserRoleType;
-    company: SchemaTypeOpts<string> | string;
-    createdAt: SchemaTypeOpts<Date> | Date;
+    forename: SchemaTypeOpts<StringConstructor> | string;
+    surname: SchemaTypeOpts<StringConstructor> | string;
+    email: SchemaTypeOpts<StringConstructor> | string;
+    password: SchemaTypeOpts<StringConstructor> | string;
+    role: SchemaTypeOpts<StringConstructor> | UserRoleType;
+    company: SchemaTypeOpts<typeof ObjectId> | string;
+    createdAt: SchemaTypeOpts<any> | Date;
+    agreement: SchemaTypeOpts<BooleanConstructor> | boolean
 }
 
 export class User implements UserSchema {
@@ -24,6 +28,7 @@ export class User implements UserSchema {
         public role: UserRoleType,
         public company: string,
         public createdAt: Date,
+        public agreement: boolean,
     ) {}
 }
 
