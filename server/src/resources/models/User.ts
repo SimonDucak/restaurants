@@ -51,3 +51,11 @@ export interface UserLoginReq {
     email: string;
     password: string;
 }
+
+/*
+* Decoded token
+* */
+export interface DecodedToken {
+    id: string;
+    iat: number;
+}

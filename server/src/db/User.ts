@@ -79,7 +79,9 @@ export function userSchema(): any {
 * */
 const UserMongooseSchema: Schema = new Schema(userSchema());
 
-export interface UserMongoose extends User, Document {}
+export interface UserMongoose extends User, Document {
+    comparePassword: (string) => boolean;
+}
 
 /*
 * User pre save hook.
