@@ -5,7 +5,6 @@ import DB from "../db/";
 import { UserMongoose } from "../db/User";
 import { CompanyMongoose } from "../db/Company";
 import { UserRegisterReq, UserRes, User, DecodedToken } from "../resources/models/User"
-import { CompanyReq, Company } from "../resources/models/Company"
 import { ExtendedError } from "../error";
 
 const router: Router = Router({ mergeParams: true });
@@ -13,9 +12,8 @@ const router: Router = Router({ mergeParams: true });
 /*
 * Register user and create company then connect them with Users N:1 Company relationship
 * */
-router.post("/register", async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+/*router.post("/register", async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-        // Validate request
         // Sanitize user data.
         const { forename, surname, email, password, agreement } = req.body.user as User;
         const userData: UserRegisterReq = { forename, surname, email, password, agreement };
@@ -46,6 +44,41 @@ router.post("/register", async (req: Request, res: Response, next: NextFunction)
         res.status(200).json(serviceRes);
     } catch (e) {
         next(e);
+    }
+});*/
+
+/*
+* Register user and then find company and connect them with Users N:1 Company relationship
+* */
+router.post("/register/:company_id", async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        // Sanitize user data.
+        const { forename, surname, email, password, agreement } = req.body.user as User;
+        const userData: UserRegisterReq = { forename, surname, email, password, agreement };
+        const user: UserMongoose | undefined = await DB.User.create(userData as UserMongoose);
+        // Create company
+        const company: CompanyMongoose | undefined = await DB.Company.findById(req.params.company_id);
+        // Check if company a user exists
+        if (!user || !company) return next(new ExtendedError("Something went wrong. Please, try again later.", 500));
+        // Connect with relationship N:1
+        user.company = company._id;
+        company.users.push(user._id);
+        await user.save();
+        await company.save();
+        // Create token
+        const token: string = sign({ id: user._id }, process.env.SECRET_KEY);
+        // Set token to cookie header
+        res.setHeader('Set-Cookie', cookie.serialize('token', String(token), {
+            httpOnly: true,
+            maxAge: 60 * 60 * 24 * 7 // 1 week
+        }));
+        // Sanitize and answer "UserRes"
+        user.password = undefined;
+        const serviceRes: { token: string, user: UserRes, } = { token, user };
+        res.status(200).json(serviceRes);
+    } catch (e) {
+        if (e.code === 11000) next(new ExtendedError("This email already exists.", 400));
+        else next(new ExtendedError("Something went wrong. Please, try again later.", 500));
     }
 });
 
@@ -84,7 +117,7 @@ router.post("/login", async (req: Request, res: Response, next: NextFunction): P
            });
        }
    } catch (e) {
-       next(e)
+       next(new ExtendedError("Something went wrong. Please, try again later.", 500))
    }
 });
 //
