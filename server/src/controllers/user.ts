@@ -1,11 +1,14 @@
 import * as cookie from "cookie";
 import { Router, Request, Response, NextFunction } from "express";
 import { sign, verify, VerifyErrors } from "jsonwebtoken";
+import { hash } from "bcrypt";
 import DB from "../db/";
 import { UserMongoose } from "../db/User";
 import { CompanyMongoose } from "../db/Company";
 import { UserRegisterReq, UserRes, User, DecodedToken } from "../resources/models/User"
+// import { Company, CompanyReq } from "../resources/models/Company"
 import { ExtendedError } from "../error";
+import MailSender, { MailOptions } from "../email/MailSender";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -90,12 +93,7 @@ router.post("/login", async (req: Request, res: Response, next: NextFunction): P
        // Find user by email
        const user: UserMongoose | undefined = await DB.User.findOne({ email: req.body.email });
        // // If user not found return error
-       if (!user) {
-           next({
-               status: 400,
-               message: "Incorrect email or password."
-           });
-       }
+       if (!user) return next(new ExtendedError("Incorrect email or password.", 400));
        // Compare password with password in request
        const equal: boolean = await user.comparePassword(req.body.password);
        // If req password is equal with password in DB create token and return it with user ID.
@@ -110,18 +108,11 @@ router.post("/login", async (req: Request, res: Response, next: NextFunction): P
            // Return user without password
            user.password = undefined;
            res.status(200).json({ user, token });
-       } else {
-           next({
-               status: 400,
-               message: "Incorrect email or password."
-           });
-       }
+       } else next(new ExtendedError("Incorrect email or password.", 400));
    } catch (e) {
        next(new ExtendedError("Something went wrong. Please, try again later.", 500))
    }
 });
-//
-
 
 /*
 * Token service.
@@ -167,4 +158,35 @@ router.post("/token", async (req: Request, res: Response, next: NextFunction): P
        return next(e);
    }
 });
+
+/*
+* Forgot password request.
+* */
+router.post("/forgot-password/request", async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
+   try {
+       // 1. Find user by email
+       const user: UserMongoose | undefined = await DB.User.findOne({ email: req.body.email });
+       if (!user) {
+           next(new ExtendedError("Email doesn't exists.", 500));
+           return;
+       }
+       // 2. Hash user ID
+       const hashID: string = await hash(String(user._id), 10);
+       // 3. Send message to user email with link to FE application
+       const link: string = `${process.env.CONSOLE_HOST}#/forgot-password/${encodeURI(hashID)}`;
+       console.log(link);
+       const mailOptions: Omit<MailOptions, "from"> = {
+           to: req.body.email,
+           subject: "Reset password",
+           html: `Hello mr. ${user.surname}, <br> for reset password please click <a href="${link}" target="_blank">here</a>`,
+       };
+       await new MailSender(mailOptions).sendMail();
+        // 4. Send http 200
+       res.status(200).json(true);
+   } catch (e) {
+       console.log(e);
+       next(new ExtendedError("Email was't sent successfully.", 500));
+   }
+});
+
 export default router;

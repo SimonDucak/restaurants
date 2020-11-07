@@ -3,16 +3,19 @@ import { NextFunction } from "express";
 import { User } from "../resources/models/User";
 import { Schema, Model, model, Document, SchemaDefinition } from "mongoose";
 import userSchema from "../resources/schemas/userSchema";
+import {ExtendedError} from "../error";
+
+const saltRounds: number = 10;
+
+export interface UserMongoose extends User, Document {
+    comparePassword: (string) => boolean;
+}
 
 /*
 * User schema init
 * */
 // @ts-ignore
 const UserMongooseSchema: Schema = new Schema(userSchema as SchemaDefinition);
-
-export interface UserMongoose extends User, Document {
-    comparePassword: (string) => boolean;
-}
 
 /*
 * User pre save hook.
@@ -21,12 +24,13 @@ export interface UserMongoose extends User, Document {
 UserMongooseSchema.pre("save", async function(next: NextFunction): Promise<void> {
     try {
         const document: UserMongoose = this as UserMongoose;
-        document.password = await hash(document.password, 10);
+        if (this.isNew) document.password = await hash(document.password, saltRounds);
         next();
     } catch (e) {
         next(e);
     }
 });
+
 
 /*
 * User method.
@@ -36,7 +40,8 @@ UserMongooseSchema.methods.comparePassword = async function(candidatePassword: s
     try {
         return await compare(candidatePassword, this.password);
     } catch (e) {
-        next(e);
+        console.log(e);
+        next(new ExtendedError("Incorrect email or password", 400));
     }
 };
 

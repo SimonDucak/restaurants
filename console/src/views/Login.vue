@@ -80,9 +80,9 @@ export default defineComponent({
     const router: Router = useRouter();
 
     /*
-      * Validations
-      * Computed returns array of error IDs.
-      * */
+    * Validations
+    * Computed returns array of error IDs.
+    * */
     const formErrors: ComputedRef<string[]> = computed<string[]>(() => {
       const errors: string[] = [];
       // Email validations
@@ -94,12 +94,12 @@ export default defineComponent({
     });
 
     /*
-      * Signup request
-      * */
+    * Sign in request
+    * */
     const signIn: Function = async (): Promise<void> => {
       try {
         if (formErrors.value.length === 0) {
-          appLoaderText.value = "Registration in progress, please wait ...";
+          appLoaderText.value = "Authorization in progress, please wait ...";
           appLoaderVisible.value = true;
           const req: UserLoginReq = { email: email.value, password: password.value };
           const loginRes: AxiosResponse<LoginRegisterRes> = await axios.post("/api/user/login", req);
