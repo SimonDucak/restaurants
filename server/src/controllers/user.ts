@@ -1,14 +1,15 @@
 import * as cookie from "cookie";
 import { Router, Request, Response, NextFunction } from "express";
 import { sign, verify, VerifyErrors } from "jsonwebtoken";
-import { hash } from "bcrypt";
 import DB from "../db/";
 import { UserMongoose } from "../db/User";
 import { CompanyMongoose } from "../db/Company";
-import { UserRegisterReq, UserRes, User, DecodedToken } from "../resources/models/User"
+import { UserRegisterReq, UserRes, User, DecodedToken, UserUpdateReq } from "../resources/models/User"
+import { userRequired } from "../middleware/auth";
 // import { Company, CompanyReq } from "../resources/models/Company"
 import { ExtendedError } from "../error";
-import MailSender, { MailOptions } from "../email/MailSender";
+import { hash } from "bcrypt";
+// import MailSender, { MailOptions } from "../email/MailSender";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -150,43 +151,86 @@ router.post("/token", async (req: Request, res: Response, next: NextFunction): P
            const verifyResult: null | UserRes = await verifyUserByToken;
            // If result is null return http error 404
            if (!verifyResult) return next(new ExtendedError("You haven't access permissions!", 404));
-           res.status(200).json(verifyResult);
+           res.status(200).json({ user: verifyResult, token });
        } else {
            return next(new ExtendedError("You haven't access permissions!", 403));
        }
    } catch (e) {
-       return next(e);
+       return next(new ExtendedError("Something went wrong.", 500))
    }
+});
+
+/*
+* Update User profile data
+* */
+router.put("/profile-update", userRequired, async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
+   try {
+        const userID: string = req.body.verifiedID;
+        const { forename, surname } = req.body.user as UserUpdateReq;
+        const user: UserMongoose | undefined = await DB.User.findById(userID);
+        if (!user) return next(new ExtendedError("Something went wrong.", 500));
+        user.forename = forename;
+        user.surname = surname;
+        await user.save();
+        res.status(200).json(true);
+   } catch (e) {
+       console.log(e);
+       return next(new ExtendedError("Something went wrong.", 500))
+   }
+});
+
+/*
+* Update User password
+* */
+router.put("/password-update", userRequired, async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
+    try {
+        const userID: string = req.body.verifiedID;
+        const user: UserMongoose | undefined = await DB.User.findById(userID);
+        if (!user) return next(new ExtendedError("Something went wrong.", 500));
+        const comparePassword: boolean = await user.comparePassword(req.body.password);
+        if (!comparePassword) return next(new ExtendedError("Password is incorrect.", 500));
+        user.password = await hash(req.body.newPassword, 10);
+        await user.save();
+        res.status(200).json(true);
+    } catch (e) {
+        console.log(e);
+        return next(new ExtendedError("Something went wrong.", 500))
+    }
 });
 
 /*
 * Forgot password request.
 * */
-router.post("/forgot-password/request", async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
-   try {
-       // 1. Find user by email
-       const user: UserMongoose | undefined = await DB.User.findOne({ email: req.body.email });
-       if (!user) {
-           next(new ExtendedError("Email doesn't exists.", 500));
-           return;
-       }
-       // 2. Hash user ID
-       const hashID: string = await hash(String(user._id), 10);
-       // 3. Send message to user email with link to FE application
-       const link: string = `${process.env.CONSOLE_HOST}#/forgot-password/${encodeURI(hashID)}`;
-       console.log(link);
-       const mailOptions: Omit<MailOptions, "from"> = {
-           to: req.body.email,
-           subject: "Reset password",
-           html: `Hello mr. ${user.surname}, <br> for reset password please click <a href="${link}" target="_blank">here</a>`,
-       };
-       await new MailSender(mailOptions).sendMail();
-        // 4. Send http 200
-       res.status(200).json(true);
-   } catch (e) {
-       console.log(e);
-       next(new ExtendedError("Email was't sent successfully.", 500));
-   }
-});
+// router.post("/forgot-password/request", async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
+//    try {
+//        // 1. Find user by email
+//        const user: UserMongoose | undefined = await DB.User.findOne({ email: req.body.email });
+//        if (!user) {
+//            next(new ExtendedError("Email doesn't exists.", 500));
+//            return;
+//        }
+//        // 2. Hash user ID
+//        const hashID: string = await hash(String(user._id), 10);
+//        // 3. Send message to user email with link to FE application
+//        const link: string = `${process.env.CONSOLE_HOST}#/forgot-password?hash=${encodeURI(hashID)}`;
+//        const mailOptions: Omit<MailOptions, "from"> = {
+//            to: req.body.email,
+//            subject: "Reset password",
+//            html: `Hello mr. ${user.surname}, <br> for reset password please click <a href="${link}" target="_blank">here</a>`,
+//        };
+//        await new MailSender(mailOptions).sendMail();
+//         // 4. Send http 200
+//        res.status(200).json(true);
+//    } catch (e) {
+//        console.log(e);
+//        next(new ExtendedError("Email was't sent successfully.", 500));
+//    }
+// });
+
+/*
+* Reset forgotten password
+* */
+// TODO:
+
 
 export default router;

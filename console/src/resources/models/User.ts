@@ -33,14 +33,14 @@ export class User implements UserSchema {
 }
 
 /*
-* User response
+* User RESPONSE
 * */
 export interface UserRes extends Omit<User, "password"> {
     _id: string;
 }
 
 /*
-* User register or login response
+* User register or login RESPONSE
 * */
 export interface LoginRegisterRes {
     user: UserRes;
@@ -48,17 +48,34 @@ export interface LoginRegisterRes {
 }
 
 /*
-* User request for register
+* User register REQUEST
 * */
 export interface UserRegisterReq extends Omit<User, "role" | "company" | "createdAt"> {}
 
 /*
-* User request for login
+* User login REQUEST
 * */
 export interface UserLoginReq {
     email: string;
     password: string;
 }
+
+/*
+* User profile data update REQUEST
+* */
+export interface UserUpdateReq {
+    forename: string;
+    surname: string;
+}
+
+/*
+* User password update REQUEST
+* */
+export interface UserUpdatePasswordRequest {
+    password: string;
+    newPassword: string;
+}
+
 
 /*
 * Decoded token

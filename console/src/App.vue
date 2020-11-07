@@ -70,7 +70,10 @@ export default defineComponent({
    * Form group validations
    */
   .form-group {
-    .is-invalid { border-width: 0; }
+    .is-invalid, .is-valid {
+      border-width: 0;
+      background-image: unset;
+    }
 
     .invalid-feedback {
       display: none;
@@ -82,7 +85,10 @@ export default defineComponent({
 
     &.dirty-input {
       .invalid-feedback { display: block; }
-      .is-invalid { border-width: 1px; }
+      .is-invalid, .is-valid { border-width: 1px; }
+      .is-valid {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2342ba96' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+      }
     }
   }
 
