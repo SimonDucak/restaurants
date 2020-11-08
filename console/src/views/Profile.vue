@@ -109,7 +109,7 @@
               <!-- Card -->
               <div class="card mb-6 mb-lg-8">
                 <div class="card-header position-relative">
-                  <a href="#" class="text-reset d-block stretched-link collapsed" data-toggle="collapse" data-target="#profile-settings-security" aria-expanded="true" aria-controls="profile-settings-security">
+                  <div class="text-reset d-block stretched-link collapsed">
                     <div class="row no-gutters align-items-center">
                       <!-- Title -->
                       <div class="col">
@@ -122,7 +122,7 @@
                         <i class="text-muted icon-md fe-shield"></i>
                       </div>
                     </div>
-                  </a>
+                  </div>
                 </div>
 
                 <div id="profile-settings-security" class="collapse show" data-parent="#profile-settings">

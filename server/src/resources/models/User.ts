@@ -1,5 +1,5 @@
 import {
-    StringSchemaProperty, DateSchemaProperty, ObjectIDOneProperty, BooleanSchemaProperty,
+    StringSchemaProperty, DateSchemaProperty, ObjectIDSchemaProperty, BooleanSchemaProperty,
 } from "../mongooseTypes";
 
 export const userRoleTypes = ["ADMIN", "WAITER"] as const;
@@ -14,7 +14,7 @@ export interface UserSchema {
     email: StringSchemaProperty | string;
     password: StringSchemaProperty | string;
     role: StringSchemaProperty | UserRoleType;
-    company: ObjectIDOneProperty | string;
+    company: ObjectIDSchemaProperty | string;
     createdAt: DateSchemaProperty | Date;
     agreement: BooleanSchemaProperty | boolean
 }

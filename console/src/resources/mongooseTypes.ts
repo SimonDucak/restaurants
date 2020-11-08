@@ -54,9 +54,19 @@ export interface DateSchemaProperty extends SchemaProperty {
 }
 
 /*
+* Object schema property must have type as object constructor
+* and default value must be a object.
+* */
+export interface ObjectSchemaProperty<T> extends SchemaProperty {
+    type: ObjectConstructor;
+    default?: T;
+}
+
+/*
 * Object ID schema 1:N relationship schema property
 * */
-export interface ObjectIDOneProperty {
+export interface ObjectIDSchemaProperty {
     type: typeof ObjectId;
     ref: string;
 }
+

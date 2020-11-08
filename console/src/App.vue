@@ -122,12 +122,50 @@ export default defineComponent({
   }
 
   /*
-   * Fade in/out vue animations
-   */
+  * Fade in/out vue animations
+  */
   .fade-enter-active, .fade-leave-active {
     transition: opacity .5s;
   }
   .fade-enter, .fade-leave-to {
     opacity: 0;
+  }
+
+  /*
+  * Clear button
+  */
+  .clean-button {
+    box-shadow: none;
+    border: none;
+    background: unset;
+    color: inherit;
+  }
+
+  /*
+  * Clean inputs
+  */
+  .clean-input {
+    box-shadow: none!important;
+    border: none!important;
+    background-color: unset!important;
+    outline: none!important;
+    color: white;
+
+    &.clean-input-h2 {
+      font-size: 1.625rem;
+      margin-bottom: .75rem;
+    }
+
+    &.clean-input-h6 {
+      font-size: .9375rem;
+      margin-bottom: .125rem;
+    }
+
+    &.clean-input-p {
+      margin-bottom: 0;
+      line-height: 1.6;
+      color: #a7a7a7;
+      font-size: .9375rem;
+    }
   }
 </style>

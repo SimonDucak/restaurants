@@ -1,4 +1,4 @@
-import { Schema, SchemaDefinition } from "mongoose";
+import { Schema } from "mongoose";
 import { UserSchema, userRoleTypes } from "../models/User";
 import { minLength, requiredString } from "../validators/string";
 import { emailFormat } from "../validators/email";

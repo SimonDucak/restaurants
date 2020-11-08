@@ -1,28 +1,28 @@
-import { SchemaTypeOpts, Schema } from "mongoose";
 import { Menu } from "./Menu";
 import { UserRes } from "./User";
 import { OrderRes } from "./Order";
 import { TableRes } from "./Table";
-
-const ObjectId = Schema.Types.ObjectId;
+import {
+    StringSchemaProperty, DateSchemaProperty, ObjectIDSchemaProperty, ObjectSchemaProperty
+} from "../mongooseTypes";
 
 export interface CompanySchema {
-    name: SchemaTypeOpts<StringConstructor> | string;
-    users: SchemaTypeOpts<typeof ObjectId[]> | string[];
-    orders: SchemaTypeOpts<typeof ObjectId[]> | string[];
-    tables: SchemaTypeOpts<typeof ObjectId[]> | string[];
-    menu: SchemaTypeOpts<Object> | Menu;
-    createdAt: SchemaTypeOpts<any> | Date;
+    name: StringSchemaProperty | string;
+    users: ObjectIDSchemaProperty[] | string[];
+    orders: ObjectIDSchemaProperty[] | string[];
+    tables: ObjectIDSchemaProperty[] | string[];
+    menu: ObjectSchemaProperty<Menu> | Menu;
+    createdAt: DateSchemaProperty | Date;
 }
 
 export class Company implements CompanySchema {
     public constructor(
-        public name: string,
-        public users: string[],
-        public orders: string[],
-        public tables: string[],
-        public menu: Menu,
-        public createdAt: Date,
+        public name: string = "",
+        public users: string[] = [],
+        public orders: string[] = [],
+        public tables: string[] = [],
+        public menu: Menu = new Menu(),
+        public createdAt: Date = new Date(),
     ) {}
 }
 

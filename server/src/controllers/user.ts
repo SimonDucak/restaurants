@@ -193,9 +193,20 @@ router.put("/password-update", userRequired, async (req: Request, res: Response,
         await user.save();
         res.status(200).json(true);
     } catch (e) {
-        console.log(e);
         return next(new ExtendedError("Something went wrong.", 500))
     }
+});
+
+/*
+* Log out user
+* */
+router.post("/logout", async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
+   try {
+       res.setHeader('Set-Cookie', cookie.serialize('token', undefined));
+       res.status(200).json(true);
+   } catch (e) {
+       return next(new ExtendedError("Something went wrong.", 500))
+   }
 });
 
 /*

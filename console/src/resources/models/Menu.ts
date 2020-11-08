@@ -1,17 +1,19 @@
-export interface MenuItem {
-    name: string;
-    price: number;
-    description: string;
+export class MenuItem {
+    public constructor(
+        public name: string = "",
+        public price: number = 0,
+        public description: string = "",
+    ) {}
 }
 
-export interface MenuSection {
-    name: string;
-    menuItems: MenuItem[];
+export class MenuSection {
+    public constructor(
+       public menuItems: MenuItem[] = [],
+    ) {}
 }
 
 export class Menu {
     public constructor(
-        public createdAt: Date,
-        public menuSections: MenuSection[],
+        public menuSections: MenuSection[] = [],
     ) {};
 }

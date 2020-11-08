@@ -24,23 +24,18 @@
         </a>
       </li>
 
-      <!-- Profile -->
+      <!-- Menu -->
       <li class="nav-item">
-        <router-link
-          tag="a"
-          to="/profile"
-          class="nav-link position-relative p-0 py-xl-3"
-          title="Profile"
-        >
-          <i class="icon-lg fe-user"></i>
+        <router-link tag="a" to="/menu" class="nav-link position-relative p-0 py-xl-3" title="Menu">
+          <i class="icon-lg fe-menu"></i>
         </router-link>
       </li>
 
-      <!-- Friend -->
+      <!-- Profile -->
       <li class="nav-item mt-xl-9">
-        <a class="nav-link position-relative p-0 py-xl-3" data-toggle="tab" href="#tab-content-friends" title="Friends" role="tab">
-          <i class="icon-lg fe-users"></i>
-        </a>
+        <router-link tag="a" to="/profile" class="nav-link position-relative p-0 py-xl-3" title="Profile">
+          <i class="icon-lg fe-user"></i>
+        </router-link>
       </li>
 
       <!-- Chats -->
@@ -58,36 +53,66 @@
         </a>
       </li>
 
-      <!-- Demo only: Documentation -->
+      <!-- Log out -->
       <li class="nav-item mt-xl-9 d-none d-xl-block flex-xl-grow-1">
-        <a class="nav-link position-relative p-0 py-xl-3" data-toggle="tab" href="#tab-content-demos" title="Demos" role="tab">
-          <i class="icon-lg fe-layers"></i>
-        </a>
+        <button @click="logOut" class="clean-button nav-link position-relative p-0 py-xl-3" title="Log out">
+          <i class="icon-lg fe-log-out"></i>
+        </button>
       </li>
 
       <!-- Settings -->
       <li class="nav-item mt-xl-9">
-        <a class="nav-link position-relative p-0 py-xl-3" href="settings.html" title="Settings">
+        <router-link v-if="isAdmin" tag="a" to="/settings" class="nav-link position-relative p-0 py-xl-3" title="Settings">
           <i class="icon-lg fe-settings"></i>
-        </a>
+        </router-link>
       </li>
 
     </ul>
     <!-- Menu -->
-
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from "vue";
+import { isAdmin, user, token } from "@/store/User";
+import { User } from "@/resources/models/User";
+import { Router, useRouter } from "vue-router";
+import { appLoaderVisible, appLoaderText } from "@/store/App";
+import axios from "axios";
 
 export default defineComponent({
   name: "TheNavigation",
+  setup() {
+    const router: Router = useRouter();
+
+    /*
+    * Log out user
+    * */
+    const logOut: Function = async () => {
+      try {
+        appLoaderText.value = "Log out in progress ...";
+        appLoaderVisible.value = true;
+        await axios.post("/api/user/logout");
+        user.value = { ...new User(), _id: "" };
+        token.value = "";
+        router.push("/login");
+      } catch (e) {
+        console.log(e);
+      } finally {
+        appLoaderVisible.value = false;
+      }
+    };
+
+    return {
+      isAdmin,
+      logOut,
+    };
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-  .router-link-exact-active {
+  .router-link-active {
     color: #0176ff!important;
   }
 </style>

@@ -5,14 +5,18 @@ import {
 } from "vue-router";
 import axios, { AxiosResponse } from "axios";
 import { isAuth, user, token } from "@/store/User";
+import { company } from "@/store/Company";
 import { appLoaderVisible, appLoaderText } from "@/store/App";
 import { LoginRegisterRes } from "@/resources/models/User";
-
+import { CompanyRes } from "@/resources/models/Company";
 // Views
 import Signup from "@/views/Signup.vue";
 import Login from "@/views/Login.vue";
 import Dashboard from "@/views/Dashboard.vue";
 import Profile from "@/views/Profile.vue";
+import Settings from "@/views/Settings.vue";
+import Menu from "@/views/settings/Menu.vue";
+import Users from "@/views/settings/Users.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -30,6 +34,36 @@ const routes: Array<RouteRecordRaw> = [
         meta: {
           loginRequired: true,
         },
+      },
+      {
+        path: "/settings",
+        name: "Settings",
+        component: Settings,
+        redirect: "/settings/menu",
+        meta: {
+          loginRequired: true,
+          role: "ADMIN",
+        },
+        children: [
+          {
+            path: "/settings/menu",
+            name: "SettingsMenu",
+            component: Menu,
+            meta: {
+              loginRequired: true,
+              role: "ADMIN",
+            },
+          },
+          {
+            path: "/settings/users",
+            name: "SettingsUsers",
+            component: Users,
+            meta: {
+              loginRequired: true,
+              role: "ADMIN",
+            },
+          },
+        ],
       },
     ],
   },
@@ -70,6 +104,9 @@ const verifyUser: Function = async (): Promise<void> => {
     // User is verified then set user.
     user.value = tokenRes.data.user;
     token.value = tokenRes.data.token;
+    // Try get user company
+    const foundCompany: AxiosResponse<CompanyRes> = await axios.get(`/api/company/${user.value.company}`);
+    company.value = foundCompany.data;
   } catch (e) {
     // Token doesn't exists
   } finally {
@@ -102,8 +139,19 @@ router.beforeEach(async (to: RouteLocationNormalized, from: RouteLocationNormali
     }
     // If route required logged user
     if (to.meta.loginRequired) {
-      if (isAuth.value) next();
-      else next("/login");
+      if (isAuth.value) {
+        // If route doesn't require user role
+        if (!to.meta.role) {
+          next();
+          return;
+        }
+
+        // If route require user role
+        if (to.meta.role) {
+          if (user.value.role === to.meta.role) next();
+          else next(from);
+        }
+      } else next("/login");
       return;
     }
   }
